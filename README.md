@@ -4,9 +4,9 @@ Moontiles Pebble Watchface
 
 WATCHFACE DESCRIPTION:
 ======================
-Key information is found in 7 titles as follows:
+Key information is found in 6 titles as follows:
 
-Hour, Minute, Day of the Week, Moon Phase, Day of the Month, Month, Year
+Time (Hour:Minute), Day of the Week, Moon Phase, Day of the Month, Month, Year
 
 For the moon phase, an icon for one of 14 phases of the moon is displayed
 with a different representation for waxing and waning moons.  I wanted to do
