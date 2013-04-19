@@ -22,8 +22,8 @@
 		},
 		{
 			"type":"font",
-			"characterRegex": "[0-9]",
-			"defName":"FONT_WW_DIGITAL_SUBSET_46",
+			"characterRegex": "[0-9:]",
+			"defName":"FONT_WW_DIGITAL_SUBSET_52",
 			"file":"fonts/wwDigital.ttf"
 		},
 		{

@@ -1,9 +1,17 @@
-/* Application:   Pebble Moontiles Watchface
-   Filename: 	  moontiles.c
-   Version:       1.0.0 
+/* Application:   	Pebble Moontiles Watchface
+
+   Filename: 	  	moontiles.c
+
+   Version:       	1.1 
+   
+   Version History:	1.0 Initial Version
+   			1.1 Combined hour and minute tiles and increased typeface size, support reverse of black and white
+   
    Purpose:	  Main implementation source                                                        
+
    Author:        Brian K. Holman (me@brianholman.com)      
-   Date:	  18 Apr 2013
+
+   Date:	  19 Apr 2013
 */                                               
 
 #include "pebble_os.h"
@@ -13,16 +21,21 @@
 
 #define MY_UUID { 0x52, 0x82, 0x1B, 0x97, 0xF2, 0xE8, 0x4B, 0xA0, 0x8D, 0x69, 0xB3, 0x95, 0x86, 0x6D, 0xA2, 0x85 }
 
-PBL_APP_INFO(MY_UUID, "Moontiles", "Brian Holman", 1, 0, RESOURCE_ID_IMAGE_MENU_ICON, APP_INFO_WATCH_FACE);
+PBL_APP_INFO(MY_UUID, "Moontiles", "Brian Holman", 1, 1, RESOURCE_ID_IMAGE_MENU_ICON, APP_INFO_WATCH_FACE);
 
+/* #define REVERSE 1 */
+#ifdef REVERSE
+#define COLOR_FOREGROUND GColorBlack
+#define COLOR_BACKGROUND GColorWhite
+#else
 #define COLOR_FOREGROUND GColorWhite
 #define COLOR_BACKGROUND GColorBlack
+#endif
 
 Window window;
 
 Layer background;
-TextLayer hour_text;
-TextLayer minute_text;
+TextLayer time_text;
 TextLayer day_text;
 TextLayer moon_text;
 TextLayer date_text;
@@ -87,8 +100,7 @@ void background_update_callback(Layer *me, GContext* ctx)
 	(void) me;
 
 	graphics_context_set_fill_color(ctx, COLOR_FOREGROUND);
-	graphics_fill_rect(ctx, GRect(2,8,68,68), 4, GCornersAll); /* Hour Box */
-	graphics_fill_rect(ctx, GRect(74,8,68,68), 4, GCornersAll); /* Minute Box */
+	graphics_fill_rect(ctx, GRect(2,8,140,68), 4, GCornersAll); /* Time Box */
 	graphics_fill_rect(ctx, GRect(2,81,68,43), 4, GCornersAll); /* Day Box */
 	graphics_fill_rect(ctx, GRect(74,81,68,43), 4, GCornersAll); /* Moon Box */
 	graphics_fill_rect(ctx, GRect(2,128,32,32), 4, GCornersAll); /* Date Box */
@@ -101,8 +113,7 @@ void background_update_callback(Layer *me, GContext* ctx)
 void handle_tick(AppContextRef ctx, PebbleTickEvent *event)
 {
 	long arypos;
-	static char hour[]   = "  ";
-	static char minute[] = "  ";
+	static char time[]   = "     ";
 	static char day[]    = "   ";
 	static char moon[]   = " ";
 	static char date[]   = "  ";
@@ -114,22 +125,19 @@ void handle_tick(AppContextRef ctx, PebbleTickEvent *event)
 	static int tm_year = -1;
 	static int tm_wday = -1;
 
-	/* Set hour and AM/PM if not 24-hour*/
+	/* Set time and AM/PM if not 24-hour*/
 	if (clock_is_24h_style())
 	{
-		string_format_time(hour, sizeof(hour), "%H", event->tick_time);
+		string_format_time(time, sizeof(time), "%R", event->tick_time);
+		ampm[0] = '\0';
 	}
 	else
 	{
-		string_format_time(hour, sizeof(hour), "%l", event->tick_time);
+		string_format_time(time, sizeof(time), "%I:%M", event->tick_time);
 		string_format_time(ampm, sizeof(ampm), "%p", event->tick_time);
 	}
-	text_layer_set_text(&hour_text, strip(hour));
+	text_layer_set_text(&time_text, strip(time));
 	text_layer_set_text(&ampm_text, ampm);
-	
-	/* Set minute */
-	string_format_time(minute, sizeof(minute), "%M", event->tick_time);
-	text_layer_set_text(&minute_text, minute);
 	
 	/* Set day of the week */
 	if (tm_wday != event->tick_time->tm_wday)
@@ -188,7 +196,7 @@ void handle_tick(AppContextRef ctx, PebbleTickEvent *event)
 }
 
 // utility function for initializing a text layer
-void init_text(TextLayer* textlayer, int x, int y, int width, int height, ResourceId font)
+void init_text(TextLayer* textlayer, int x, int y, int width, int height, ResourceId font, GColor TextColor)
 {
 	text_layer_init(textlayer, GRect(x, y, width, height));
 	text_layer_set_text_alignment(textlayer, GTextAlignmentCenter);
@@ -212,17 +220,15 @@ void handle_init(AppContextRef ctx)
 	background.update_proc = &background_update_callback;
 	layer_add_child(&window.layer, &background);
 
-	init_text(&hour_text, 2, 8 + 4, 68, 68 - 4, RESOURCE_ID_FONT_WW_DIGITAL_SUBSET_46);
-	init_text(&minute_text, 74, 8 + 4, 68, 68 - 4, RESOURCE_ID_FONT_WW_DIGITAL_SUBSET_46);
-	init_text(&day_text, 2, 81 + 2, 68, 43 - 2, RESOURCE_ID_FONT_WW_DIGITAL_DOW_SUBSET_33);
-	init_text(&moon_text, 74, 85 + 2, 68, 43 - 2, RESOURCE_ID_FONT_MOONPHASE_33);
-	init_text(&date_text, 2, 128 + 2, 32, 32 - 2, RESOURCE_ID_FONT_WW_DIGITAL_DATE_SUBSET_22);
-	init_text(&month_text, 38, 128 + 2, 68, 32 - 2, RESOURCE_ID_FONT_WW_DIGITAL_DATE_SUBSET_22);
-	init_text(&year_text, 110, 128 + 2, 32, 32 - 2, RESOURCE_ID_FONT_WW_DIGITAL_DATE_SUBSET_22);
-	init_text(&ampm_text, 4, 48, 16, 12, RESOURCE_ID_FONT_WW_DIGITAL_SUBSET_10);
+	init_text(&time_text, 2, 8 + 4, 140, 68 - 4, RESOURCE_ID_FONT_WW_DIGITAL_SUBSET_52, COLOR_BACKGROUND);
+	init_text(&day_text, 2, 81 + 2, 68, 43 - 2, RESOURCE_ID_FONT_WW_DIGITAL_DOW_SUBSET_33, COLOR_BACKGROUND);
+	init_text(&moon_text, 74, 85 + 2, 68, 43 - 2, RESOURCE_ID_FONT_MOONPHASE_33, COLOR_BACKGROUND);
+	init_text(&date_text, 2, 128 + 2, 32, 32 - 2, RESOURCE_ID_FONT_WW_DIGITAL_DATE_SUBSET_22,COLOR_BACKGROUND);
+	init_text(&month_text, 38, 128 + 2, 68, 32 - 2, RESOURCE_ID_FONT_WW_DIGITAL_DATE_SUBSET_22,COLOR_BACKGROUND);
+	init_text(&year_text, 110, 128 + 2, 32, 32 - 2, RESOURCE_ID_FONT_WW_DIGITAL_DATE_SUBSET_22,COLOR_BACKGROUND);
+	init_text(&ampm_text, 4, 63, 16, 12, RESOURCE_ID_FONT_WW_DIGITAL_SUBSET_10,COLOR_BACKGROUND);
 
-	layer_add_child(&window.layer, &hour_text.layer);
-	layer_add_child(&window.layer, &minute_text.layer);
+	layer_add_child(&window.layer, &time_text.layer);
 	layer_add_child(&window.layer, &day_text.layer);
 	layer_add_child(&window.layer, &moon_text.layer);
 	layer_add_child(&window.layer, &date_text.layer);
