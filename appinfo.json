@@ -4,6 +4,9 @@
     "appKeys": {},
     "longName": "Moontiles (SDK 2)",
     "versionCode": 1,
+    "capabilities": [
+        ""
+    ],
     "shortName": "Moontiles",
     "companyName": "akrs_",
     "watchapp": {

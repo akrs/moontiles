@@ -14,10 +14,9 @@
    Date:	  19 Apr 2013
 */                                               
 
-#include "pebble_os.h"
-#include "pebble_app.h"
-#include "pebble_fonts.h"
-#include "moonphase.h"
+#include <pebble.h>
+#include <moonphase.h>
+#include <time.h>
 
 #define MY_UUID { 0x52, 0x82, 0x1B, 0x97, 0xF2, 0xE8, 0x4B, 0xA0, 0x8D, 0x69, 0xB3, 0x95, 0x86, 0x6D, 0xA2, 0x85 }
 
@@ -32,16 +31,16 @@ PBL_APP_INFO(MY_UUID, "Moontiles", "Brian Holman", 1, 1, RESOURCE_ID_IMAGE_MENU_
 #define COLOR_BACKGROUND GColorBlack
 #endif
 
-Window window;
+Window *window;
 
-Layer background;
-TextLayer time_text;
-TextLayer day_text;
-TextLayer moon_text;
-TextLayer date_text;
-TextLayer month_text;
-TextLayer year_text;
-TextLayer ampm_text;
+Layer *background;
+TextLayer *time_text;
+TextLayer *day_text;
+TextLayer *moon_text;
+TextLayer *date_text;
+TextLayer *month_text;
+TextLayer *year_text;
+TextLayer *ampm_text;
 
 /* Moon Phase (0-14), Waxing Character, Waning Character */
 static char MoonPhaseCharLookup[15][2] =
@@ -195,10 +194,12 @@ void handle_tick(AppContextRef ctx, PebbleTickEvent *event)
 	}
 }
 
+/* Updated to here */
+
 // utility function for initializing a text layer
 void init_text(TextLayer* textlayer, int x, int y, int width, int height, ResourceId font, GColor TextColor)
 {
-	text_layer_init(textlayer, GRect(x, y, width, height));
+	textlayer = text_layer_create(GRect(x, y, width, height));
 	text_layer_set_text_alignment(textlayer, GTextAlignmentCenter);
 	text_layer_set_text_color(textlayer, COLOR_BACKGROUND);
 	text_layer_set_background_color(textlayer, GColorClear);
@@ -210,14 +211,12 @@ void handle_init(AppContextRef ctx)
 {
 	(void)ctx;
 
-	window_init(&window, "Moontiles");
+	window = window_create();
 	window_stack_push(&window, true /* Animated */);
 	window_set_background_color(&window, COLOR_BACKGROUND);
 
-	resource_init_current_app(&APP_RESOURCES);
-
-	layer_init(&background, window.layer.frame);
-	background.update_proc = &background_update_callback;
+	background = layer_create(window.layer.frame);
+	layer_set_update_proc(background, &background_update_callback);
 	layer_add_child(&window.layer, &background);
 
 	init_text(&time_text, 2, 8 + 4, 140, 68 - 4, RESOURCE_ID_FONT_WW_DIGITAL_SUBSET_52, COLOR_BACKGROUND);
@@ -238,16 +237,9 @@ void handle_init(AppContextRef ctx)
 }
 
 // main entry point of this Pebble watchface
-void pbl_main(void *params)
+int main(void)
 {
-	PebbleAppHandlers handlers =
-	{
-		.init_handler = &handle_init,
-		.tick_info =
-		{
-			.tick_handler = &handle_tick,
-			.tick_units = MINUTE_UNIT
-		}
-	};
-	app_event_loop(params, &handlers);
+	handle_init();
+	handle_tick();
+	handle_deinit();
 }
