@@ -16,11 +16,8 @@
 
 #include <pebble.h>
 #include <moonphase.h>
-#include <time.h>
 
 #define MY_UUID { 0x52, 0x82, 0x1B, 0x97, 0xF2, 0xE8, 0x4B, 0xA0, 0x8D, 0x69, 0xB3, 0x95, 0x86, 0x6D, 0xA2, 0x85 }
-
-PBL_APP_INFO(MY_UUID, "Moontiles", "Brian Holman", 1, 1, RESOURCE_ID_IMAGE_MENU_ICON, APP_INFO_WATCH_FACE);
 
 /* #define REVERSE 1 */
 #ifdef REVERSE
@@ -64,7 +61,7 @@ static char MoonPhaseCharLookup[15][2] =
 
 /*  JDATE  --  Convert internal date to Julian day.  */
 
-long jdate(PblTm *t)
+long jdate(struct tm *t)
 {
 	long c, m, y;
 
@@ -109,7 +106,7 @@ void background_update_callback(Layer *me, GContext* ctx)
 }
 
 // callback function for minute tick events that update the time and date display
-void handle_tick(AppContextRef ctx, PebbleTickEvent *event)
+void handle_tick(struct tm *tick_time, TimeUnits units_changed)
 {
 	long arypos;
 	static char time[]   = "     ";
@@ -127,36 +124,36 @@ void handle_tick(AppContextRef ctx, PebbleTickEvent *event)
 	/* Set time and AM/PM if not 24-hour*/
 	if (clock_is_24h_style())
 	{
-		string_format_time(time, sizeof(time), "%R", event->tick_time);
+		strftime(time, sizeof(time), "%R", tick_time);
 		ampm[0] = '\0';
 	}
 	else
 	{
-		string_format_time(time, sizeof(time), "%I:%M", event->tick_time);
-		string_format_time(ampm, sizeof(ampm), "%p", event->tick_time);
+		strftime(time, sizeof(time), "%I:%M", tick_time);
+		strftime(ampm, sizeof(ampm), "%p", tick_time);
 	}
-	text_layer_set_text(&time_text, strip(time));
-	text_layer_set_text(&ampm_text, ampm);
+	text_layer_set_text(time_text, strip(time));
+	text_layer_set_text(ampm_text, ampm);
 	
 	/* Set day of the week */
-	if (tm_wday != event->tick_time->tm_wday)
+	if (tm_wday != tick_time->tm_wday)
 	{
-		string_format_time(day, sizeof(day), "%a", event->tick_time);
-		text_layer_set_text(&day_text, day);
-		tm_wday = event->tick_time->tm_wday;
+		strftime(day, sizeof(day), "%a", tick_time);
+		text_layer_set_text(day_text, day);
+		tm_wday = tick_time->tm_wday;
 	}
 	
 	/* Set day of the month and associated moon phase for day of the month */
-	if (tm_mday != event->tick_time->tm_mday)
+	if (tm_mday != tick_time->tm_mday)
 	{
-		string_format_time(date, sizeof(date), "%e", event->tick_time);
-		text_layer_set_text(&date_text, strip(date));
-		tm_mday = event->tick_time->tm_mday;
+		strftime(date, sizeof(date), "%e", tick_time);
+		text_layer_set_text(date_text, strip(date));
+		tm_mday = tick_time->tm_mday;
 		
 		/* Set Moon Phase */
 	
 		/* Find the offset of today's julian date in the lookup table */
-		arypos = jdate(event->tick_time) - JULIAN_MOON_EPIC;
+		arypos = jdate(tick_time) - JULIAN_MOON_EPIC;
 		if (arypos >= 0 && arypos < MOONPHASE_ARRAY_SIZE)
 		{
 			if (MoonPhaseDateLookup[arypos][1])
@@ -174,23 +171,23 @@ void handle_tick(AppContextRef ctx, PebbleTickEvent *event)
 		{
 			moon[0] = '\0';
 		}
-		text_layer_set_text(&moon_text, moon);
+		text_layer_set_text(moon_text, moon);
 	}
 	
 	/* Set name of the month */
-	if (tm_mon != event->tick_time->tm_mon)
+	if (tm_mon != tick_time->tm_mon)
 	{
-		string_format_time(month, sizeof(month), "%b", event->tick_time);
-		text_layer_set_text(&month_text, strip(month));	
-		tm_mon = event->tick_time->tm_mon;
+		strftime(month, sizeof(month), "%b", tick_time);
+		text_layer_set_text(month_text, strip(month));	
+		tm_mon = tick_time->tm_mon;
 	}
 	
 	/* Set year */
-	if (tm_year != event->tick_time->tm_year)
+	if (tm_year != tick_time->tm_year)
 	{
-		string_format_time(year, sizeof(year), "%y", event->tick_time);
-		text_layer_set_text(&year_text, year);
-		tm_year = event->tick_time->tm_year;
+		strftime(year, sizeof(year), "%y", tick_time);
+		text_layer_set_text(year_text, year);
+		tm_year = tick_time->tm_year;
 	}
 }
 
@@ -207,39 +204,49 @@ void init_text(TextLayer* textlayer, int x, int y, int width, int height, Resour
 }
 
 // callback function for the app initialization
-void handle_init(AppContextRef ctx)
+void handle_init()
 {
-	(void)ctx;
-
 	window = window_create();
-	window_stack_push(&window, true /* Animated */);
-	window_set_background_color(&window, COLOR_BACKGROUND);
+	window_stack_push(window, true /* Animated */);
+	window_set_background_color(window, COLOR_BACKGROUND);
 
-	background = layer_create(window.layer.frame);
+	background = window_get_root_layer(window);
 	layer_set_update_proc(background, &background_update_callback);
-	layer_add_child(&window.layer, &background);
+	layer_add_child(background, background);
 
-	init_text(&time_text, 2, 8 + 4, 140, 68 - 4, RESOURCE_ID_FONT_WW_DIGITAL_SUBSET_52, COLOR_BACKGROUND);
-	init_text(&day_text, 2, 81 + 2, 68, 43 - 2, RESOURCE_ID_FONT_WW_DIGITAL_DOW_SUBSET_33, COLOR_BACKGROUND);
-	init_text(&moon_text, 74, 85 + 2, 68, 43 - 2, RESOURCE_ID_FONT_MOONPHASE_33, COLOR_BACKGROUND);
-	init_text(&date_text, 2, 128 + 2, 32, 32 - 2, RESOURCE_ID_FONT_WW_DIGITAL_DATE_SUBSET_22,COLOR_BACKGROUND);
-	init_text(&month_text, 38, 128 + 2, 68, 32 - 2, RESOURCE_ID_FONT_WW_DIGITAL_DATE_SUBSET_22,COLOR_BACKGROUND);
-	init_text(&year_text, 110, 128 + 2, 32, 32 - 2, RESOURCE_ID_FONT_WW_DIGITAL_DATE_SUBSET_22,COLOR_BACKGROUND);
-	init_text(&ampm_text, 4, 63, 16, 12, RESOURCE_ID_FONT_WW_DIGITAL_SUBSET_10,COLOR_BACKGROUND);
+	init_text(time_text, 2, 8 + 4, 140, 68 - 4, RESOURCE_ID_FONT_WW_DIGITAL_SUBSET_52, COLOR_BACKGROUND);
+	init_text(day_text, 2, 81 + 2, 68, 43 - 2, RESOURCE_ID_FONT_WW_DIGITAL_DOW_SUBSET_33, COLOR_BACKGROUND);
+	init_text(moon_text, 74, 85 + 2, 68, 43 - 2, RESOURCE_ID_FONT_MOONPHASE_33, COLOR_BACKGROUND);
+	init_text(date_text, 2, 128 + 2, 32, 32 - 2, RESOURCE_ID_FONT_WW_DIGITAL_DATE_SUBSET_22,COLOR_BACKGROUND);
+	init_text(month_text, 38, 128 + 2, 68, 32 - 2, RESOURCE_ID_FONT_WW_DIGITAL_DATE_SUBSET_22,COLOR_BACKGROUND);
+	init_text(year_text, 110, 128 + 2, 32, 32 - 2, RESOURCE_ID_FONT_WW_DIGITAL_DATE_SUBSET_22,COLOR_BACKGROUND);
+	init_text(ampm_text, 4, 63, 16, 12, RESOURCE_ID_FONT_WW_DIGITAL_SUBSET_10,COLOR_BACKGROUND);
 
-	layer_add_child(&window.layer, &time_text.layer);
-	layer_add_child(&window.layer, &day_text.layer);
-	layer_add_child(&window.layer, &moon_text.layer);
-	layer_add_child(&window.layer, &date_text.layer);
-	layer_add_child(&window.layer, &month_text.layer);
-	layer_add_child(&window.layer, &year_text.layer);
-	layer_add_child(&window.layer, &ampm_text.layer);
+	layer_add_child(background, text_layer_get_layer(time_text));
+	layer_add_child(background, text_layer_get_layer(day_text));
+	layer_add_child(background, text_layer_get_layer(moon_text));
+	layer_add_child(background, text_layer_get_layer(date_text));
+	layer_add_child(background, text_layer_get_layer(month_text));
+	layer_add_child(background, text_layer_get_layer(year_text));
+	layer_add_child(background, text_layer_get_layer(ampm_text));
+	
+	tick_timer_service_subscribe(MINUTE_UNIT, handle_tick);
+}
+void handle_deinit(void)
+{
+	text_layer_destroy(time_text);
+	text_layer_destroy(day_text);
+	text_layer_destroy(moon_text);
+	text_layer_destroy(date_text);
+	text_layer_destroy(month_text);
+	text_layer_destroy(year_text);
+	text_layer_destroy(ampm_text);
+	window_destroy(window);
 }
 
 // main entry point of this Pebble watchface
 int main(void)
 {
 	handle_init();
-	handle_tick();
 	handle_deinit();
 }
