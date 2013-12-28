@@ -194,9 +194,14 @@ void handle_tick(struct tm *tick_time, TimeUnits units_changed)
 /* Updated to here */
 
 // utility function for initializing a text layer
-void init_text(TextLayer* textlayer, int x, int y, int width, int height, ResourceId font, GColor TextColor)
+void init_text(TextLayer *textlayer, int x, int y, int width, int height, ResourceId font, GColor TextColor)
 {
 	textlayer = text_layer_create(GRect(x, y, width, height));
+	if (text_layer_get_layer(textlayer)) {
+		APP_LOG(APP_LOG_LEVEL_DEBUG, "textlayer root layer is not null");
+	} else {
+		APP_LOG(APP_LOG_LEVEL_DEBUG, "textlayer root layer IS null!!!!");
+	}
 	text_layer_set_text_alignment(textlayer, GTextAlignmentCenter);
 	text_layer_set_text_color(textlayer, COLOR_BACKGROUND);
 	text_layer_set_background_color(textlayer, GColorClear);
@@ -211,26 +216,55 @@ void handle_init()
 	window_set_background_color(window, COLOR_BACKGROUND);
 
 	background = window_get_root_layer(window);
+	
 	layer_set_update_proc(background, &background_update_callback);
-	layer_add_child(background, background);
-
+	//layer_add_child(background, background);
+	
+	APP_LOG(APP_LOG_LEVEL_DEBUG, "setting up text");
 	init_text(time_text, 2, 8 + 4, 140, 68 - 4, RESOURCE_ID_FONT_WW_DIGITAL_SUBSET_52, COLOR_BACKGROUND);
+	if (time_text) {
+		APP_LOG(APP_LOG_LEVEL_DEBUG, "time_text is not null");
+	} else {
+		APP_LOG(APP_LOG_LEVEL_DEBUG, "time_text IS null!!!!");
+	}
+	if (text_layer_get_layer(time_text)) {
+		APP_LOG(APP_LOG_LEVEL_DEBUG, "time_text root layer is not null");
+	} else {
+		APP_LOG(APP_LOG_LEVEL_DEBUG, "time_text root layer IS null!!!!");
+	}
 	init_text(day_text, 2, 81 + 2, 68, 43 - 2, RESOURCE_ID_FONT_WW_DIGITAL_DOW_SUBSET_33, COLOR_BACKGROUND);
 	init_text(moon_text, 74, 85 + 2, 68, 43 - 2, RESOURCE_ID_FONT_MOONPHASE_33, COLOR_BACKGROUND);
 	init_text(date_text, 2, 128 + 2, 32, 32 - 2, RESOURCE_ID_FONT_WW_DIGITAL_DATE_SUBSET_22,COLOR_BACKGROUND);
 	init_text(month_text, 38, 128 + 2, 68, 32 - 2, RESOURCE_ID_FONT_WW_DIGITAL_DATE_SUBSET_22,COLOR_BACKGROUND);
 	init_text(year_text, 110, 128 + 2, 32, 32 - 2, RESOURCE_ID_FONT_WW_DIGITAL_DATE_SUBSET_22,COLOR_BACKGROUND);
 	init_text(ampm_text, 4, 63, 16, 12, RESOURCE_ID_FONT_WW_DIGITAL_SUBSET_10,COLOR_BACKGROUND);
-
-	layer_add_child(background, text_layer_get_layer(time_text));
-	layer_add_child(background, text_layer_get_layer(day_text));
-	layer_add_child(background, text_layer_get_layer(moon_text));
-	layer_add_child(background, text_layer_get_layer(date_text));
-	layer_add_child(background, text_layer_get_layer(month_text));
-	layer_add_child(background, text_layer_get_layer(year_text));
-	layer_add_child(background, text_layer_get_layer(ampm_text));
+	APP_LOG(APP_LOG_LEVEL_DEBUG, "set up text");
 	
+	APP_LOG(APP_LOG_LEVEL_DEBUG, "setting up layers");
+	APP_LOG(APP_LOG_LEVEL_DEBUG, "setting up time");
+	if (text_layer_get_layer(time_text)) {
+		APP_LOG(APP_LOG_LEVEL_DEBUG, "time is not null");
+	} else {
+		APP_LOG(APP_LOG_LEVEL_DEBUG, "time IS null!!!!");
+	}
+	layer_add_child(background, text_layer_get_layer(time_text));
+	APP_LOG(APP_LOG_LEVEL_DEBUG, "setting up day");
+	layer_add_child(background, text_layer_get_layer(day_text));
+	APP_LOG(APP_LOG_LEVEL_DEBUG, "setting up moon");
+	layer_add_child(background, text_layer_get_layer(moon_text));
+	APP_LOG(APP_LOG_LEVEL_DEBUG, "setting up date");
+	layer_add_child(background, text_layer_get_layer(date_text));
+	APP_LOG(APP_LOG_LEVEL_DEBUG, "setting up month");
+	layer_add_child(background, text_layer_get_layer(month_text));
+	APP_LOG(APP_LOG_LEVEL_DEBUG, "setting up year");
+	layer_add_child(background, text_layer_get_layer(year_text));
+	APP_LOG(APP_LOG_LEVEL_DEBUG, "setting up ampm");
+	layer_add_child(background, text_layer_get_layer(ampm_text));
+	APP_LOG(APP_LOG_LEVEL_DEBUG, "set up layers");
+	
+	APP_LOG(APP_LOG_LEVEL_DEBUG, "setting up tick handler");
 	tick_timer_service_subscribe(MINUTE_UNIT, handle_tick);
+	APP_LOG(APP_LOG_LEVEL_DEBUG, "set up tick handler");
 }
 void handle_deinit(void)
 {
