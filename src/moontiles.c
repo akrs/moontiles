@@ -2,16 +2,17 @@
 
    Filename: 	  	moontiles.c
 
-   Version:       	1.1 
+   Version:       	2.0 
    
    Version History:	1.0 Initial Version
-   			1.1 Combined hour and minute tiles and increased typeface size, support reverse of black and white
+   					1.1 Combined hour and minute tiles and increased typeface size, support reverse of black and white
+					2.0 Updated to Pebble SDK v2
    
-   Purpose:	  Main implementation source                                                        
+   Purpose:	  		Main implementation source                                                        
 
-   Author:        Brian K. Holman (me@brianholman.com)      
+   Authors:        	Brian K. Holman (me@brianholman.com), Andrew Akers
 
-   Date:	  19 Apr 2013
+   Date:	  		28 December 2013
 */                                               
 
 #include <pebble.h>
@@ -30,7 +31,6 @@
 
 Window *window;
 
-Layer *background;
 TextLayer *time_text;
 TextLayer *day_text;
 TextLayer *moon_text;
@@ -38,6 +38,7 @@ TextLayer *date_text;
 TextLayer *month_text;
 TextLayer *year_text;
 TextLayer *ampm_text;
+Layer *background;
 
 /* Moon Phase (0-14), Waxing Character, Waning Character */
 static char MoonPhaseCharLookup[15][2] =
@@ -91,18 +92,15 @@ char* strip(char* input)
 }
 
 // callback function for rendering the background layer
-void background_update_callback(Layer *me, GContext* ctx)
+void background_update_callback(Layer *me, GContext *ctx)
 {
-	(void) me;
-
-	graphics_context_set_fill_color(ctx, COLOR_FOREGROUND);
-	graphics_fill_rect(ctx, GRect(2,8,140,68), 4, GCornersAll); /* Time Box */
-	graphics_fill_rect(ctx, GRect(2,81,68,43), 4, GCornersAll); /* Day Box */
-	graphics_fill_rect(ctx, GRect(74,81,68,43), 4, GCornersAll); /* Moon Box */
-	graphics_fill_rect(ctx, GRect(2,128,32,32), 4, GCornersAll); /* Date Box */
-	graphics_fill_rect(ctx, GRect(38,128,68,32), 4, GCornersAll); /* Month Box */
-	graphics_fill_rect(ctx, GRect(110,128,32,32), 4, GCornersAll); /* Year Box */
-
+    graphics_context_set_fill_color(ctx, COLOR_FOREGROUND);
+    graphics_fill_rect(ctx, GRect(2,8,140,68), 4, GCornersAll); /* Time Box */
+    graphics_fill_rect(ctx, GRect(2,81,68,43), 4, GCornersAll); /* Day Box */
+    graphics_fill_rect(ctx, GRect(74,81,68,43), 4, GCornersAll); /* Moon Box */
+    graphics_fill_rect(ctx, GRect(2,128,32,32), 4, GCornersAll); /* Date Box */
+    graphics_fill_rect(ctx, GRect(38,128,68,32), 4, GCornersAll); /* Month Box */
+    graphics_fill_rect(ctx, GRect(110,128,32,32), 4, GCornersAll); /* Year Box */
 }
 
 // callback function for minute tick events that update the time and date display
@@ -191,18 +189,11 @@ void handle_tick(struct tm *tick_time, TimeUnits units_changed)
 	}
 }
 
-/* Updated to here */
-
 // utility function for initializing a text layer
 TextLayer* init_text(int x, int y, int width, int height, ResourceId font, GColor TextColor)
 {
 	TextLayer* textlayer;
 	textlayer = text_layer_create(GRect(x, y, width, height));
-	if (text_layer_get_layer(textlayer)) {
-		APP_LOG(APP_LOG_LEVEL_DEBUG, "textlayer root layer is not null");
-	} else {
-		APP_LOG(APP_LOG_LEVEL_DEBUG, "textlayer root layer IS null!!!!");
-	}
 	text_layer_set_text_alignment(textlayer, GTextAlignmentCenter);
 	text_layer_set_text_color(textlayer, COLOR_BACKGROUND);
 	text_layer_set_background_color(textlayer, GColorClear);
@@ -216,13 +207,11 @@ void handle_init()
 	window = window_create();
 	window_stack_push(window, true /* Animated */);
 	window_set_background_color(window, COLOR_BACKGROUND);
-
-	background = window_get_root_layer(window);
 	
+	background = layer_create(layer_get_bounds(window_get_root_layer(window)));
 	layer_set_update_proc(background, &background_update_callback);
-	//layer_add_child(background, background);
+	layer_add_child(window_get_root_layer(window), background);
 	
-	APP_LOG(APP_LOG_LEVEL_DEBUG, "setting up text");
 	time_text = init_text(2, 8 + 4, 140, 68 - 4, RESOURCE_ID_FONT_WW_DIGITAL_SUBSET_52, COLOR_BACKGROUND);
 	day_text = init_text(2, 81 + 2, 68, 43 - 2, RESOURCE_ID_FONT_WW_DIGITAL_DOW_SUBSET_33, COLOR_BACKGROUND);
 	moon_text = init_text(74, 85 + 2, 68, 43 - 2, RESOURCE_ID_FONT_MOONPHASE_33, COLOR_BACKGROUND);
@@ -230,45 +219,27 @@ void handle_init()
 	month_text = init_text(38, 128 + 2, 68, 32 - 2, RESOURCE_ID_FONT_WW_DIGITAL_DATE_SUBSET_22,COLOR_BACKGROUND);
 	year_text= init_text(110, 128 + 2, 32, 32 - 2, RESOURCE_ID_FONT_WW_DIGITAL_DATE_SUBSET_22,COLOR_BACKGROUND);
 	ampm_text = init_text(4, 63, 16, 12, RESOURCE_ID_FONT_WW_DIGITAL_SUBSET_10,COLOR_BACKGROUND);
-	APP_LOG(APP_LOG_LEVEL_DEBUG, "set up text");
 	
-	APP_LOG(APP_LOG_LEVEL_DEBUG, "setting up layers");
-	APP_LOG(APP_LOG_LEVEL_DEBUG, "setting up time");
 	layer_add_child(background, text_layer_get_layer(time_text));
-	APP_LOG(APP_LOG_LEVEL_DEBUG, "setting up day");
 	layer_add_child(background, text_layer_get_layer(day_text));
-	APP_LOG(APP_LOG_LEVEL_DEBUG, "setting up moon");
 	layer_add_child(background, text_layer_get_layer(moon_text));
-	APP_LOG(APP_LOG_LEVEL_DEBUG, "setting up date");
 	layer_add_child(background, text_layer_get_layer(date_text));
-	APP_LOG(APP_LOG_LEVEL_DEBUG, "setting up month");
 	layer_add_child(background, text_layer_get_layer(month_text));
-	APP_LOG(APP_LOG_LEVEL_DEBUG, "setting up year");
 	layer_add_child(background, text_layer_get_layer(year_text));
-	APP_LOG(APP_LOG_LEVEL_DEBUG, "setting up ampm");
 	layer_add_child(background, text_layer_get_layer(ampm_text));
-	APP_LOG(APP_LOG_LEVEL_DEBUG, "set up layers");
 	
-	APP_LOG(APP_LOG_LEVEL_DEBUG, "setting up tick handler");
 	tick_timer_service_subscribe(MINUTE_UNIT, handle_tick);
-	APP_LOG(APP_LOG_LEVEL_DEBUG, "set up tick handler");
 }
 
 void handle_deinit(void)
 {
-	text_layer_destroy(time_text);
-	text_layer_destroy(day_text);
-	text_layer_destroy(moon_text);
-	text_layer_destroy(date_text);
-	text_layer_destroy(month_text);
-	text_layer_destroy(year_text);
-	text_layer_destroy(ampm_text);
-	window_destroy(window);
+	tick_timer_service_unsubscribe();
 }
 
 // main entry point of this Pebble watchface
 int main(void)
 {
 	handle_init();
+	app_event_loop();
 	handle_deinit();
 }
