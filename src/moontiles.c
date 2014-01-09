@@ -10,15 +10,13 @@
    
    Purpose:	  		Main implementation source                                                        
 
-   Authors:        	Brian K. Holman (me@brianholman.com), Andrew Akers
+   Authors:        	Brian K. Holman (me@brianholman.com), Andrew Akers (andrew@akrs.me)
 
-   Date:	  		28 December 2013
+   Date:	  		9 January 2013
 */                                               
 
 #include <pebble.h>
 #include <moonphase.h>
-
-#define MY_UUID { 0x52, 0x82, 0x1B, 0x97, 0xF2, 0xE8, 0x4B, 0xA0, 0x8D, 0x69, 0xB3, 0x95, 0x86, 0x6D, 0xA2, 0x85 }
 
 /* #define REVERSE 1 */
 #ifdef REVERSE
