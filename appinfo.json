@@ -1,13 +1,13 @@
 {
     "versionLabel": "2",
-    "uuid": "689dea96-6903-4df8-a2e8-48a22cb8bc52",
+    "uuid": "689dea96-6903-4df8-a2e8-48a22cb8bc53",
     "appKeys": {},
-    "longName": "Moontiles",
+    "longName": "Moontiles Vibe",
     "versionCode": 1,
     "capabilities": [
         ""
     ],
-    "shortName": "Moontiles",
+    "shortName": "MoontilesV",
     "companyName": "akrs_",
     "watchapp": {
         "watchface": true

@@ -128,6 +128,12 @@ void handle_tick(struct tm *tick_time, TimeUnits units_changed)
 		strftime(time, sizeof(time), "%I:%M", tick_time);
 		strftime(ampm, sizeof(ampm), "%p", tick_time);
 	}
+	/* Vibrate every 5 mins */
+	if (tick_time->tm_min % 5 == 0)
+	{
+		vibes_short_pulse();
+	}
+
 	text_layer_set_text(time_text, strip(time));
 	text_layer_set_text(ampm_text, ampm);
 	
