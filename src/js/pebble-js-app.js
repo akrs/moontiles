@@ -1,3 +1,5 @@
+Pebble.addEventListener("ready", function(){});
+
 Pebble.addEventListener("showConfiguration", function() {
 	console.log("showing config");
 	Pebble.openURL('http://akrs.github.io/moontiles/');
@@ -16,5 +18,5 @@ Pebble.addEventListener("webviewclosed", function(e) {
 	// webview closed
 	var options = JSON.parse(decodeURIComponent(e.response));
 	console.log("Options = " + JSON.stringify(options));
-	Pebble.sendAppMessage({"color": 0}, handleACK, handleNACK);
+	Pebble.sendAppMessage({"reversed": options.reversed}, handleACK, handleNACK);
 });

@@ -1,7 +1,9 @@
 {
     "versionLabel": "2.5",
     "uuid": "689dea96-6903-4df8-a2e8-48a22cb8bc52",
-    "appKeys": {},
+    "appKeys": {
+        "reversed": 0
+    },
     "longName": "Moontiles",
     "versionCode": 10,
     "capabilities": [

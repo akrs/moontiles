@@ -212,6 +212,12 @@ TextLayer* init_text(int x, int y, int width, int height, ResourceId font, GColo
     return textlayer;
 }
 
+void handle_inbox(DictionaryIterator *it, void *context)
+{
+	Tuple* tup = dict_read_first(it);
+	persist_write_int(tup->key, tup->value->int32);
+}
+
 // callback function for the app initialization
 void handle_init()
 {
@@ -255,12 +261,17 @@ void handle_init()
     layer_add_child(background, text_layer_get_layer(ampm_text));
     
     tick_timer_service_subscribe(MINUTE_UNIT, handle_tick);
+	app_message_open(APP_MESSAGE_INBOX_SIZE_MINIMUM, APP_MESSAGE_OUTBOX_SIZE_MINIMUM);
+	app_message_register_inbox_received(handle_inbox);
 }
 
 void handle_deinit(void)
 {
     tick_timer_service_unsubscribe();
+	app_message_deregister_callbacks();
 }
+
+
 
 // main entry point of this Pebble watchface
 int main(void)
