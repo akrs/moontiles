@@ -18,14 +18,16 @@
 #include <pebble.h>
 #include <moonphase.h>
 
-/* #define REVERSE 1 */
+/* #define REVERSE 1 
 #ifdef REVERSE
 #define COLOR_FOREGROUND GColorBlack
 #define COLOR_BACKGROUND GColorWhite
 #else
 #define COLOR_FOREGROUND GColorWhite
 #define COLOR_BACKGROUND GColorBlack
-#endif
+#endif */
+	
+#define COLOR_KEY 0
 
 Window *window;
 
@@ -92,6 +94,16 @@ char* strip(char* input)
 // callback function for rendering the background layer
 void background_update_callback(Layer *me, GContext *ctx)
 {
+	int color = persist_read_int(COLOR_KEY);
+	GColor COLOR_FOREGROUND;
+	if (color == 0) 
+	{
+		COLOR_FOREGROUND = GColorBlack;
+	}
+	else
+	{
+		COLOR_FOREGROUND = GColorWhite;
+	}
     graphics_context_set_fill_color(ctx, COLOR_FOREGROUND);
     graphics_fill_rect(ctx, GRect(2,8,140,68), 4, GCornersAll); /* Time Box */
     graphics_fill_rect(ctx, GRect(2,81,68,43), 4, GCornersAll); /* Day Box */
@@ -116,7 +128,7 @@ void handle_tick(struct tm *tick_time, TimeUnits units_changed)
 	static int tm_mon = -1;
 	static int tm_year = -1;
 	static int tm_wday = -1;
-
+	
 	/* Set time and AM/PM if not 24-hour*/
 	if (clock_is_24h_style())
 	{
@@ -190,6 +202,16 @@ void handle_tick(struct tm *tick_time, TimeUnits units_changed)
 // utility function for initializing a text layer
 TextLayer* init_text(int x, int y, int width, int height, ResourceId font, GColor TextColor)
 {
+	int color = persist_read_int(COLOR_KEY);
+	GColor COLOR_BACKGROUND;
+	if (color == 0)
+	{
+		COLOR_BACKGROUND = GColorWhite;
+	}
+	else
+	{
+		COLOR_BACKGROUND = GColorBlack;
+	}
 	TextLayer* textlayer;
 	textlayer = text_layer_create(GRect(x, y, width, height));
 	text_layer_set_text_alignment(textlayer, GTextAlignmentCenter);
@@ -202,6 +224,23 @@ TextLayer* init_text(int x, int y, int width, int height, ResourceId font, GColo
 // callback function for the app initialization
 void handle_init()
 {
+	if (!persist_exists(COLOR_KEY)) 
+	{
+		persist_write_int(COLOR_KEY, 0);
+	}
+	int color = persist_read_int(COLOR_KEY);
+	
+	GColor COLOR_BACKGROUND;
+	if (color == 0) 
+	{
+		COLOR_BACKGROUND = GColorWhite;
+		APP_LOG(APP_LOG_LEVEL_DEBUG, "color equals 0");
+	}
+	else
+	{
+		COLOR_BACKGROUND = GColorBlack;
+		APP_LOG(APP_LOG_LEVEL_DEBUG, "color does not equal 0");
+	}
 	window = window_create();
 	window_stack_push(window, true /* Animated */);
 	window_set_background_color(window, COLOR_BACKGROUND);

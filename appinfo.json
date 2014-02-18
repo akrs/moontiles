@@ -1,16 +1,16 @@
 {
     "versionLabel": "2.5",
-    "uuid": "3c80c7bd-ca2a-46ae-b628-a559fe0df1cd",
+    "uuid": "689dea96-6903-4df8-a2e8-48a22cb8bc52",
     "appKeys": {},
-    "longName": "Moontiles Settings",
+    "longName": "Moontiles",
     "versionCode": 10,
     "capabilities": [
         "configurable"
     ],
-    "shortName": "Moontiles Settings",
-    "companyName": "akrs_",
+    "shortName": "Moontiles",
+    "companyName": "Akrs",
     "watchapp": {
-        "watchface": false
+        "watchface": true
     },
     "resources": {
         "media": [
