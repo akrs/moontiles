@@ -1,35 +1,29 @@
 {
-    "versionLabel": "2",
-    "uuid": "689dea96-6903-4df8-a2e8-48a22cb8bc52",
+    "versionLabel": "2.5",
+    "uuid": "3c80c7bd-ca2a-46ae-b628-a559fe0df1cd",
     "appKeys": {},
-    "longName": "Moontiles",
-    "versionCode": 1,
+    "longName": "Moontiles Settings",
+    "versionCode": 10,
     "capabilities": [
-        ""
+        "configurable"
     ],
-    "shortName": "Moontiles",
+    "shortName": "Moontiles Settings",
     "companyName": "akrs_",
     "watchapp": {
-        "watchface": true
+        "watchface": false
     },
     "resources": {
         "media": [
             {
-                "characterRegex": "[0-1A-Z]",
-                "type": "font",
-                "name": "FONT_MOONPHASE_33",
-                "file": "fonts/moon_phases.ttf"
+                "menuIcon": true,
+                "type": "png",
+                "name": "IMAGE_MENU_ICON",
+                "file": "images/menu_icon_moontiles.png"
             },
             {
-                "characterRegex": "[0-9ADFJMNOSabceglnoprtuvy]",
+                "characterRegex": "[APM]",
                 "type": "font",
-                "name": "FONT_WW_DIGITAL_DATE_SUBSET_22",
-                "file": "fonts/wwDigital.ttf"
-            },
-            {
-                "characterRegex": "[FMSTWadehinortu]",
-                "type": "font",
-                "name": "FONT_WW_DIGITAL_DOW_SUBSET_33",
+                "name": "FONT_WW_DIGITAL_SUBSET_10",
                 "file": "fonts/wwDigital.ttf"
             },
             {
@@ -39,16 +33,22 @@
                 "file": "fonts/wwDigital.ttf"
             },
             {
-                "characterRegex": "[APM]",
+                "characterRegex": "[FMSTWadehinortu]",
                 "type": "font",
-                "name": "FONT_WW_DIGITAL_SUBSET_10",
+                "name": "FONT_WW_DIGITAL_DOW_SUBSET_33",
                 "file": "fonts/wwDigital.ttf"
             },
             {
-                "menuIcon": true,
-                "type": "png",
-                "name": "IMAGE_MENU_ICON",
-                "file": "images/menu_icon_moontiles.png"
+                "characterRegex": "[0-9ADFJMNOSabceglnoprtuvy]",
+                "type": "font",
+                "name": "FONT_WW_DIGITAL_DATE_SUBSET_22",
+                "file": "fonts/wwDigital.ttf"
+            },
+            {
+                "characterRegex": "[0-1A-Z]",
+                "type": "font",
+                "name": "FONT_MOONPHASE_33",
+                "file": "fonts/moon_phases.ttf"
             }
         ]
     }
