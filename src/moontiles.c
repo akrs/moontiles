@@ -37,23 +37,23 @@ TextLayer *ampm_text;
 Layer *background;
 
 /* Moon Phase (0-14), Waxing Character, Waning Character */
-static char MoonPhaseCharLookup[15][2] =
+static char MoonPhaseCharLookup[15][4] =
 {
-	{'0','0'},  /* 0 */
-	{'A','Z'},  /* 1 */
-	{'B','Y'},  /* 2 */
-	{'C','X'},  /* 3 */
-	{'D','W'},  /* 4 */
-	{'E','V'},  /* 5 */
-	{'F','U'},  /* 6 */
-	{'G','T'},  /* 7 */
-	{'H','S'},  /* 8 */
-	{'I','R'},  /* 9 */
-	{'J','Q'}, /* 10 */
-	{'K','P'}, /* 11 */
-	{'L','O'}, /* 12 */
-	{'M','N'}, /* 13 */
-	{'1','1'}  /* 14 */
+	{'0','0','0','0'},  /* 0 */
+	{'A','Z','a','z'},  /* 1 */
+	{'B','Y','b','y'},  /* 2 */
+	{'C','X','c','x'},  /* 3 */
+	{'D','W','d','w'},  /* 4 */
+	{'E','V','e','v'},  /* 5 */
+	{'F','U','f','u'},  /* 6 */
+	{'G','T','g','t'},  /* 7 */
+	{'H','S','h','s'},  /* 8 */
+	{'I','R','i','r'},  /* 9 */
+	{'J','Q','j','q'}, /* 10 */
+	{'K','P','k','p'}, /* 11 */
+	{'L','O','l','o'}, /* 12 */
+	{'M','N','m','n'}, /* 13 */
+	{'1','1','1','1'}  /* 14 */
 };
 
 /*  JDATE  --  Convert internal date to Julian day.  */
@@ -85,18 +85,6 @@ char* strip(char* input)
 	}
 
 	return input;
-}
-
-// callback function for rendering the background layer
-void background_update_callback(Layer *me, GContext *ctx)
-{
-    graphics_context_set_fill_color(ctx, COLOR_FOREGROUND);
-    graphics_fill_rect(ctx, GRect(2,8,140,68), 4, GCornersAll); /* Time Box */
-    graphics_fill_rect(ctx, GRect(2,81,68,43), 4, GCornersAll); /* Day Box */
-    graphics_fill_rect(ctx, GRect(74,81,68,43), 4, GCornersAll); /* Moon Box */
-    graphics_fill_rect(ctx, GRect(2,128,32,32), 4, GCornersAll); /* Date Box */
-    graphics_fill_rect(ctx, GRect(38,128,68,32), 4, GCornersAll); /* Month Box */
-    graphics_fill_rect(ctx, GRect(110,128,32,32), 4, GCornersAll); /* Year Box */
 }
 
 // callback function for minute tick events that update the time and date display
@@ -150,15 +138,31 @@ void handle_tick(struct tm *tick_time, TimeUnits units_changed)
 		arypos = jdate(tick_time) - JULIAN_MOON_EPIC;
 		if (arypos >= 0 && arypos < MOONPHASE_ARRAY_SIZE)
 		{
-			if (MoonPhaseDateLookup[arypos][1])
+			if (!REVERSE)
 			{
-				/* Waxing Moon */
-				moon[0] = MoonPhaseCharLookup[MoonPhaseDateLookup[arypos][0]][0];
+				if (MoonPhaseDateLookup[arypos][1])
+				{
+					/* Waxing Moon */
+					moon[0] = MoonPhaseCharLookup[MoonPhaseDateLookup[arypos][0]][0];
+				}
+				else 
+				{
+					/* Waning Moon */
+					moon[0] = MoonPhaseCharLookup[MoonPhaseDateLookup[arypos][0]][1];
+				}
 			}
-			else 
+			else
 			{
-				/* Waning Moon */
-				moon[0] = MoonPhaseCharLookup[MoonPhaseDateLookup[arypos][0]][1];
+				if (MoonPhaseDateLookup[arypos][1])
+				{
+					/* Waxing Moon */
+					moon[0] = MoonPhaseCharLookup[MoonPhaseDateLookup[arypos][0]][2];
+				}
+				else 
+				{
+					/* Waning Moon */
+					moon[0] = MoonPhaseCharLookup[MoonPhaseDateLookup[arypos][0]][3];
+				}
 			}
 		}
 		else
@@ -204,11 +208,6 @@ void handle_init()
 	window_stack_push(window, true /* Animated */);
 	window_set_background_color(window, COLOR_FOREGROUND);
 	
-	/* background = layer_create(layer_get_bounds(window_get_root_layer(window)));
-	layer_set_update_proc(background, &background_update_callback);
-	layer_add_child(window_get_root_layer(window), background); */
-	background = window_get_root_layer(window);
-	
 	time_text = init_text(2, 8 + 4, 140, 68 - 4, RESOURCE_ID_FONT_WW_DIGITAL_SUBSET_52, COLOR_BACKGROUND);
 	day_text = init_text(2, 81 + 2, 68, 43 - 2, RESOURCE_ID_FONT_WW_DIGITAL_DOW_SUBSET_33, COLOR_BACKGROUND);
 	date_text = init_text(2, 128 + 2, 32, 32 - 2, RESOURCE_ID_FONT_WW_DIGITAL_DATE_SUBSET_22,COLOR_BACKGROUND);
@@ -217,13 +216,13 @@ void handle_init()
 	ampm_text = init_text(4, 63, 16, 12, RESOURCE_ID_FONT_WW_DIGITAL_SUBSET_10,COLOR_BACKGROUND);
 	moon_text = init_text(74, 85 + 2, 68, 43 - 2, RESOURCE_ID_FONT_MOONPHASE_33, COLOR_FOREGROUND);
 	
-	layer_add_child(background, text_layer_get_layer(time_text));
-	layer_add_child(background, text_layer_get_layer(day_text));
-	layer_add_child(background, text_layer_get_layer(date_text));
-	layer_add_child(background, text_layer_get_layer(month_text));
-	layer_add_child(background, text_layer_get_layer(year_text));
-	layer_add_child(background, text_layer_get_layer(ampm_text));
-	layer_add_child(background, text_layer_get_layer(moon_text));
+	layer_add_child(window_get_root_layer(window), text_layer_get_layer(time_text));
+	layer_add_child(window_get_root_layer(window), text_layer_get_layer(day_text));
+	layer_add_child(window_get_root_layer(window), text_layer_get_layer(date_text));
+	layer_add_child(window_get_root_layer(window), text_layer_get_layer(month_text));
+	layer_add_child(window_get_root_layer(window), text_layer_get_layer(year_text));
+	layer_add_child(window_get_root_layer(window), text_layer_get_layer(ampm_text));
+	layer_add_child(window_get_root_layer(window), text_layer_get_layer(moon_text));
 	
 	tick_timer_service_subscribe(MINUTE_UNIT, handle_tick);
 }
