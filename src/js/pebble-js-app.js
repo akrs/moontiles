@@ -1,8 +1,10 @@
+var options = {"reversed": 0};
+
 Pebble.addEventListener("ready", function(){});
 
 Pebble.addEventListener("showConfiguration", function() {
 	console.log("showing config");
-	Pebble.openURL('http://akrs.github.io/moontiles/');
+	Pebble.openURL('http://akrs.github.io/moontiles/?' + encodeURIComponent(JSON.stringify(options)));
 });
 
 var handleACK = function (e) {
@@ -16,7 +18,7 @@ var handleNACK = function (e) {
 Pebble.addEventListener("webviewclosed", function(e) {
 	console.log("configuration closed");
 	// webview closed
-	var options = JSON.parse(decodeURIComponent(e.response));
+	options = JSON.parse(decodeURIComponent(e.response));
 	console.log("Options = " + JSON.stringify(options));
 	Pebble.sendAppMessage({"reversed": options.reversed}, handleACK, handleNACK);
 });
