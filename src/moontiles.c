@@ -32,23 +32,23 @@ TextLayer *ampm_text;
 Layer *background;
 
 /* Moon Phase (0-14), Waxing Character, Waning Character */
-static char MoonPhaseCharLookup[15][2] =
+static char MoonPhaseCharLookup[15][4] =
 {
-    {'0','0'},  /* 0 */
-    {'A','Z'},  /* 1 */
-    {'B','Y'},  /* 2 */
-    {'C','X'},  /* 3 */
-    {'D','W'},  /* 4 */
-    {'E','V'},  /* 5 */
-    {'F','U'},  /* 6 */
-    {'G','T'},  /* 7 */
-    {'H','S'},  /* 8 */
-    {'I','R'},  /* 9 */
-    {'J','Q'}, /* 10 */
-    {'K','P'}, /* 11 */
-    {'L','O'}, /* 12 */
-    {'M','N'}, /* 13 */
-    {'1','1'}  /* 14 */
+	{'0','0','0','0'},  /* 0 */
+	{'A','Z','a','z'},  /* 1 */
+	{'B','Y','b','y'},  /* 2 */
+	{'C','X','c','x'},  /* 3 */
+	{'D','W','d','w'},  /* 4 */
+	{'E','V','e','v'},  /* 5 */
+	{'F','U','f','u'},  /* 6 */
+	{'G','T','g','t'},  /* 7 */
+	{'H','S','h','s'},  /* 8 */
+	{'I','R','i','r'},  /* 9 */
+	{'J','Q','j','q'}, /* 10 */
+	{'K','P','k','p'}, /* 11 */
+	{'L','O','l','o'}, /* 12 */
+	{'M','N','m','n'}, /* 13 */
+	{'1','1','1','1'}  /* 14 */
 };
 
 /*  JDATE  --  Convert internal date to Julian day.  */
@@ -153,17 +153,18 @@ void handle_tick(struct tm *tick_time, TimeUnits units_changed)
     
         /* Find the offset of today's julian date in the lookup table */
         arypos = jdate(tick_time) - JULIAN_MOON_EPIC;
+        int reversed = persist_read_int(REVERSED_KEY);
         if (arypos >= 0 && arypos < MOONPHASE_ARRAY_SIZE)
         {
             if (MoonPhaseDateLookup[arypos][1])
             {
                 /* Waxing Moon */
-                moon[0] = MoonPhaseCharLookup[MoonPhaseDateLookup[arypos][0]][0];
+                moon[0] = MoonPhaseCharLookup[MoonPhaseDateLookup[arypos][0]][0 + reversed];
             }
             else 
             {
                 /* Waning Moon */
-                moon[0] = MoonPhaseCharLookup[MoonPhaseDateLookup[arypos][0]][1];
+                moon[0] = MoonPhaseCharLookup[MoonPhaseDateLookup[arypos][0]][1 + reversed];
             }
         }
         else
