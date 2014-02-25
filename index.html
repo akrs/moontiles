@@ -7,15 +7,4 @@
 
 <button id="close" type="button">Select</button>
 
-<script>
-var encodeAndClose = function () {
-    var dropdown = document.getElementById("chooser");
-    var response = {"reversed": 0};
-    if (dropdown.options[dropdown.selectedIndex].value == "reversed") {
-        response.reversed = 1;
-    }
-    window.location.href = "pebblejs://close#" + encodeURIComponent(JSON.stringify(response));
-};
-
-document.getElementById("close").onclick = encodeAndClose;
-</script>
+<script src = ./javascript.js></script>
