@@ -1,24 +1,22 @@
-/* Application:   	Pebble Moontiles Watchface
+/* Application:   	Pebble Moontiles Watchface - Ed's Edition
 
    Filename: 	  	moontiles.c
 
-   Version:       	2.0 
+   Version:       	1.0
    
-   Version History:	1.0 Initial Version
-   					1.1 Combined hour and minute tiles and increased typeface size, support reverse of black and white
-					2.0 Updated to Pebble SDK v2
+   Version History:	1.0 Forked from Moontiles
    
    Purpose:	  		Main implementation source                                                        
 
    Authors:        	Brian K. Holman (me@brianholman.com), Andrew Akers (andrew@akrs.me)
 
-   Date:	  		9 January 2013
+   Date:	  		24 Feburary 2014
 */                                               
 
 #include <pebble.h>
 #include <moonphase.h>
 
-/* #define REVERSE 1 */
+#define REVERSE 1
 #ifdef REVERSE
 #define COLOR_FOREGROUND GColorBlack
 #define COLOR_BACKGROUND GColorWhite
@@ -193,7 +191,7 @@ TextLayer* init_text(int x, int y, int width, int height, ResourceId font, GColo
 	TextLayer* textlayer;
 	textlayer = text_layer_create(GRect(x, y, width, height));
 	text_layer_set_text_alignment(textlayer, GTextAlignmentCenter);
-	text_layer_set_text_color(textlayer, COLOR_BACKGROUND);
+	text_layer_set_text_color(textlayer, TextColor);
 	text_layer_set_background_color(textlayer, GColorClear);
 	text_layer_set_font(textlayer, fonts_load_custom_font(resource_get_handle(font)));
 	return textlayer;
@@ -204,27 +202,28 @@ void handle_init()
 {
 	window = window_create();
 	window_stack_push(window, true /* Animated */);
-	window_set_background_color(window, COLOR_BACKGROUND);
+	window_set_background_color(window, COLOR_FOREGROUND);
 	
-	background = layer_create(layer_get_bounds(window_get_root_layer(window)));
+	/* background = layer_create(layer_get_bounds(window_get_root_layer(window)));
 	layer_set_update_proc(background, &background_update_callback);
-	layer_add_child(window_get_root_layer(window), background);
+	layer_add_child(window_get_root_layer(window), background); */
+	background = window_get_root_layer(window);
 	
 	time_text = init_text(2, 8 + 4, 140, 68 - 4, RESOURCE_ID_FONT_WW_DIGITAL_SUBSET_52, COLOR_BACKGROUND);
 	day_text = init_text(2, 81 + 2, 68, 43 - 2, RESOURCE_ID_FONT_WW_DIGITAL_DOW_SUBSET_33, COLOR_BACKGROUND);
-	moon_text = init_text(74, 85 + 2, 68, 43 - 2, RESOURCE_ID_FONT_MOONPHASE_33, COLOR_BACKGROUND);
 	date_text = init_text(2, 128 + 2, 32, 32 - 2, RESOURCE_ID_FONT_WW_DIGITAL_DATE_SUBSET_22,COLOR_BACKGROUND);
 	month_text = init_text(38, 128 + 2, 68, 32 - 2, RESOURCE_ID_FONT_WW_DIGITAL_DATE_SUBSET_22,COLOR_BACKGROUND);
 	year_text= init_text(110, 128 + 2, 32, 32 - 2, RESOURCE_ID_FONT_WW_DIGITAL_DATE_SUBSET_22,COLOR_BACKGROUND);
 	ampm_text = init_text(4, 63, 16, 12, RESOURCE_ID_FONT_WW_DIGITAL_SUBSET_10,COLOR_BACKGROUND);
+	moon_text = init_text(74, 85 + 2, 68, 43 - 2, RESOURCE_ID_FONT_MOONPHASE_33, COLOR_FOREGROUND);
 	
 	layer_add_child(background, text_layer_get_layer(time_text));
 	layer_add_child(background, text_layer_get_layer(day_text));
-	layer_add_child(background, text_layer_get_layer(moon_text));
 	layer_add_child(background, text_layer_get_layer(date_text));
 	layer_add_child(background, text_layer_get_layer(month_text));
 	layer_add_child(background, text_layer_get_layer(year_text));
 	layer_add_child(background, text_layer_get_layer(ampm_text));
+	layer_add_child(background, text_layer_get_layer(moon_text));
 	
 	tick_timer_service_subscribe(MINUTE_UNIT, handle_tick);
 }
