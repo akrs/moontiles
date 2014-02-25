@@ -15,21 +15,15 @@
     "resources": {
         "media": [
             {
-                "menuIcon": true,
-                "type": "png",
-                "name": "IMAGE_MENU_ICON",
-                "file": "images/menu_icon_moontiles.png"
+                "characterRegex": "[0-1A-Za-z]",
+                "type": "font",
+                "name": "FONT_MOONPHASE_33",
+                "file": "fonts/moon_phases.ttf"
             },
             {
-                "characterRegex": "[APM]",
+                "characterRegex": "[0-9ADFJMNOSabceglnoprtuvy]",
                 "type": "font",
-                "name": "FONT_WW_DIGITAL_SUBSET_10",
-                "file": "fonts/wwDigital.ttf"
-            },
-            {
-                "characterRegex": "[0-9:]",
-                "type": "font",
-                "name": "FONT_WW_DIGITAL_SUBSET_52",
+                "name": "FONT_WW_DIGITAL_DATE_SUBSET_22",
                 "file": "fonts/wwDigital.ttf"
             },
             {
@@ -39,16 +33,22 @@
                 "file": "fonts/wwDigital.ttf"
             },
             {
-                "characterRegex": "[0-9ADFJMNOSabceglnoprtuvy]",
+                "characterRegex": "[0-9:]",
                 "type": "font",
-                "name": "FONT_WW_DIGITAL_DATE_SUBSET_22",
+                "name": "FONT_WW_DIGITAL_SUBSET_52",
                 "file": "fonts/wwDigital.ttf"
             },
             {
-                "characterRegex": "[0-1A-Z]",
+                "characterRegex": "[APM]",
                 "type": "font",
-                "name": "FONT_MOONPHASE_33",
-                "file": "fonts/moon_phases.ttf"
+                "name": "FONT_WW_DIGITAL_SUBSET_10",
+                "file": "fonts/wwDigital.ttf"
+            },
+            {
+                "menuIcon": true,
+                "type": "png",
+                "name": "IMAGE_MENU_ICON",
+                "file": "images/menu_icon_moontiles.png"
             }
         ]
     }
