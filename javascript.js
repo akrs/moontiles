@@ -10,7 +10,6 @@ var encodeAndClose = function () {
     if (reversedDropdown.options[reversedDropdown.selectedIndex].value == "reversed") {
         options.reversed = 1;
     }
-    alert("WIN");
     window.location.href = "pebblejs://close#" + encodeURIComponent(JSON.stringify(options));
 };
 
