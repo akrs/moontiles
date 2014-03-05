@@ -39,7 +39,7 @@ Layer *background;
 /* Moon Phase (0-14), Waxing Character, Waning Character */
 static char MoonPhaseCharLookup[15][4] =
 {
-	{'0','0','0','0'},  /* 0 */
+    {'0','0','1','1'},  /* 0 */
 	{'A','Z','a','z'},  /* 1 */
 	{'B','Y','b','y'},  /* 2 */
 	{'C','X','c','x'},  /* 3 */
@@ -53,7 +53,7 @@ static char MoonPhaseCharLookup[15][4] =
 	{'K','P','k','p'}, /* 11 */
 	{'L','O','l','o'}, /* 12 */
 	{'M','N','m','n'}, /* 13 */
-	{'1','1','1','1'}  /* 14 */
+	{'1','1','0','0'}  /* 14 */
 };
 
 /*  JDATE  --  Convert internal date to Julian day.  */
