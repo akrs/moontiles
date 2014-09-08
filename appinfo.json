@@ -1,57 +1,58 @@
 {
-    "versionLabel": "2.5",
-    "uuid": "689dea96-6903-4df8-a2e8-48a22cb8bc52",
     "appKeys": {
         "reversed": 0
     },
-    "longName": "Moontiles",
-    "versionCode": 10,
     "capabilities": [
         "configurable"
     ],
-    "shortName": "Moontiles",
     "companyName": "Akrs",
-    "watchapp": {
-        "watchface": true
-    },
+    "longName": "Moontiles",
+    "projectType": "native",
     "resources": {
         "media": [
             {
                 "characterRegex": "[0-1A-Za-z]",
-                "type": "font",
+                "file": "fonts/moon_phases.ttf",
                 "name": "FONT_MOONPHASE_33",
-                "file": "fonts/moon_phases.ttf"
+                "type": "font"
             },
             {
                 "characterRegex": "[0-9ADFJMNOSabceglnoprtuvy]",
-                "type": "font",
+                "file": "fonts/wwDigital.ttf",
                 "name": "FONT_WW_DIGITAL_DATE_SUBSET_22",
-                "file": "fonts/wwDigital.ttf"
+                "type": "font"
             },
             {
                 "characterRegex": "[FMSTWadehinortu]",
-                "type": "font",
+                "file": "fonts/wwDigital.ttf",
                 "name": "FONT_WW_DIGITAL_DOW_SUBSET_33",
-                "file": "fonts/wwDigital.ttf"
+                "type": "font"
             },
             {
                 "characterRegex": "[0-9:]",
-                "type": "font",
+                "file": "fonts/wwDigital.ttf",
                 "name": "FONT_WW_DIGITAL_SUBSET_52",
-                "file": "fonts/wwDigital.ttf"
+                "type": "font"
             },
             {
                 "characterRegex": "[APM]",
-                "type": "font",
+                "file": "fonts/wwDigital.ttf",
                 "name": "FONT_WW_DIGITAL_SUBSET_10",
-                "file": "fonts/wwDigital.ttf"
+                "type": "font"
             },
             {
+                "file": "images/menu_icon_moontiles.png",
                 "menuIcon": true,
-                "type": "png",
                 "name": "IMAGE_MENU_ICON",
-                "file": "images/menu_icon_moontiles.png"
+                "type": "png"
             }
         ]
+    },
+    "shortName": "Moontiles",
+    "uuid": "689dea96-6903-4df8-a2e8-48a22cb8bc52",
+    "versionCode": 10,
+    "versionLabel": "2.5",
+    "watchapp": {
+        "watchface": true
     }
 }
