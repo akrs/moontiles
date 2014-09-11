@@ -15,7 +15,7 @@ int main(int argc, char *argv[])
            "April", "May", "June", "July", "August", "September",
            "October", "November", "December"};
   double p, aom, cphase, lastcphase, cdist, cangdia, csund, csuang, lptime;
-  
+
   time(&t);
   gm = gmtime(&t);
   jmoonepic = jdate(gm);
@@ -23,7 +23,7 @@ int main(int argc, char *argv[])
   jyear(jmoonepic, &yy, &mm, &dd);
   printf( "#define JULIAN_MOON_EPIC %ld /* %d %s %d */\n", jmoonepic, dd, moname[mm - 1], yy);
   printf( "#define MOONPHASE_ARRAY_SIZE %d\n\n", MOONPHASE_ARRAY_SIZE);
-  printf("static int MoonPhaseDateLookup[%d][2] =\n{\n\t/* {Julian Date-JULIAN_MOON_EPIC = array position, Phase (0-14), Waxing (1 - Yes, 0 - Waning)} */\n", MOONPHASE_ARRAY_SIZE);
+  printf("static uint8_t MoonPhaseDateLookup[%d][2] =\n{\n\t/* {Julian Date-JULIAN_MOON_EPIC = array position, Phase (0-14), Waxing (1 - Yes, 0 - Waning)} */\n", MOONPHASE_ARRAY_SIZE);
   p = phase(jmoonepic-1, &lastcphase, &aom, &cdist, &cangdia, &csund, &csuang);
   for (jd=jmoonepic; jd<(jmoonepic+MOONPHASE_ARRAY_SIZE); jd++)
   {
@@ -33,5 +33,5 @@ int main(int argc, char *argv[])
      lastcphase = cphase;
   }
   printf ("};\n");
-    
+
 }

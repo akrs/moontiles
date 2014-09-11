@@ -2,21 +2,22 @@
 
    Filename: 	  	moontiles.c
 
-   Version:       	2.0 
-   
+   Version:       	2.0
+
    Version History:	1.0 Initial Version
    					1.1 Combined hour and minute tiles and increased typeface size, support reverse of black and white
 					2.0 Updated to Pebble SDK v2
-   
-   Purpose:	  		Main implementation source                                                        
+
+   Purpose:	  		Main implementation source
 
    Authors:        	Brian K. Holman (me@brianholman.com), Andrew Akers (andrew@akrs.me)
 
    Date:	  		9 January 2013
-*/                                               
+*/
 
 #include <pebble.h>
 #include <moonphase.h>
+#include <stdint.h>
 
 /* #define REVERSE 1 */
 #ifdef REVERSE
@@ -130,7 +131,7 @@ void handle_tick(struct tm *tick_time, TimeUnits units_changed)
 	}
 	text_layer_set_text(time_text, strip(time));
 	text_layer_set_text(ampm_text, ampm);
-	
+
 	/* Set day of the week */
 	if (tm_wday != tick_time->tm_wday)
 	{
@@ -138,16 +139,16 @@ void handle_tick(struct tm *tick_time, TimeUnits units_changed)
 		text_layer_set_text(day_text, day);
 		tm_wday = tick_time->tm_wday;
 	}
-	
+
 	/* Set day of the month and associated moon phase for day of the month */
 	if (tm_mday != tick_time->tm_mday)
 	{
 		strftime(date, sizeof(date), "%e", tick_time);
 		text_layer_set_text(date_text, strip(date));
 		tm_mday = tick_time->tm_mday;
-		
+
 		/* Set Moon Phase */
-	
+
 		/* Find the offset of today's julian date in the lookup table */
 		arypos = jdate(tick_time) - JULIAN_MOON_EPIC;
 		if (arypos >= 0 && arypos < MOONPHASE_ARRAY_SIZE)
@@ -157,7 +158,7 @@ void handle_tick(struct tm *tick_time, TimeUnits units_changed)
 				/* Waxing Moon */
 				moon[0] = MoonPhaseCharLookup[MoonPhaseDateLookup[arypos][0]][0];
 			}
-			else 
+			else
 			{
 				/* Waning Moon */
 				moon[0] = MoonPhaseCharLookup[MoonPhaseDateLookup[arypos][0]][1];
@@ -169,15 +170,15 @@ void handle_tick(struct tm *tick_time, TimeUnits units_changed)
 		}
 		text_layer_set_text(moon_text, moon);
 	}
-	
+
 	/* Set name of the month */
 	if (tm_mon != tick_time->tm_mon)
 	{
 		strftime(month, sizeof(month), "%b", tick_time);
-		text_layer_set_text(month_text, strip(month));	
+		text_layer_set_text(month_text, strip(month));
 		tm_mon = tick_time->tm_mon;
 	}
-	
+
 	/* Set year */
 	if (tm_year != tick_time->tm_year)
 	{
@@ -205,11 +206,11 @@ void handle_init()
 	window = window_create();
 	window_stack_push(window, true /* Animated */);
 	window_set_background_color(window, COLOR_BACKGROUND);
-	
+
 	background = layer_create(layer_get_bounds(window_get_root_layer(window)));
 	layer_set_update_proc(background, &background_update_callback);
 	layer_add_child(window_get_root_layer(window), background);
-	
+
 	time_text = init_text(2, 8 + 4, 140, 68 - 4, RESOURCE_ID_FONT_WW_DIGITAL_SUBSET_52, COLOR_BACKGROUND);
 	day_text = init_text(2, 81 + 2, 68, 43 - 2, RESOURCE_ID_FONT_WW_DIGITAL_DOW_SUBSET_33, COLOR_BACKGROUND);
 	moon_text = init_text(74, 85 + 2, 68, 43 - 2, RESOURCE_ID_FONT_MOONPHASE_33, COLOR_BACKGROUND);
@@ -217,7 +218,7 @@ void handle_init()
 	month_text = init_text(38, 128 + 2, 68, 32 - 2, RESOURCE_ID_FONT_WW_DIGITAL_DATE_SUBSET_22,COLOR_BACKGROUND);
 	year_text= init_text(110, 128 + 2, 32, 32 - 2, RESOURCE_ID_FONT_WW_DIGITAL_DATE_SUBSET_22,COLOR_BACKGROUND);
 	ampm_text = init_text(4, 63, 16, 12, RESOURCE_ID_FONT_WW_DIGITAL_SUBSET_10,COLOR_BACKGROUND);
-	
+
 	layer_add_child(background, text_layer_get_layer(time_text));
 	layer_add_child(background, text_layer_get_layer(day_text));
 	layer_add_child(background, text_layer_get_layer(moon_text));
@@ -225,7 +226,7 @@ void handle_init()
 	layer_add_child(background, text_layer_get_layer(month_text));
 	layer_add_child(background, text_layer_get_layer(year_text));
 	layer_add_child(background, text_layer_get_layer(ampm_text));
-	
+
 	tick_timer_service_subscribe(MINUTE_UNIT, handle_tick);
 }
 
