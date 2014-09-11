@@ -1,7 +1,7 @@
 #define JULIAN_MOON_EPIC 2456911 /* 10 September 2014 */
 #define MOONPHASE_ARRAY_SIZE 1825
 
-static int MoonPhaseDateLookup[1825][2] =
+static uint8_t MoonPhaseDateLookup[1825][2] =
 {
 	/* {Julian Date-JULIAN_MOON_EPIC = array position, Phase (0-14), Waxing (1 - Yes, 0 - Waning)} */
 	{14, 0}, /* 2456911 - 10 September 2014 - 97%  */
