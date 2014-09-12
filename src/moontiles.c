@@ -19,7 +19,10 @@
 #include <moonphase.h>
 #include <stdint.h>
 
-#define REVERSED_KEY 0
+#define REVERSED_KEY        0   // This is used for inverting the watchface
+#define STATUS_ICON_KEY     1   // This is for displaying small status icons
+#define TIME_DISPLAY_KEY    2   // This is used to swap the moon icon to a seperate timezone display
+#define TIME_ZONE_DELTA_KEY 3   // This is used for the delta between the current timezone and the other timezone
 
 Window *window;
 
@@ -32,24 +35,29 @@ TextLayer *year_text;
 TextLayer *ampm_text;
 Layer *background;
 
+GColor foregroundColor;
+GColor backgroundColor;
+
+bool displayTime;
+
 /* Moon Phase (0-14), Waxing Character, Waning Character */
 static char MoonPhaseCharLookup[15][4] =
 {
-	{'0','0','0','0'},  /* 0 */
-	{'A','Z','a','z'},  /* 1 */
-	{'B','Y','b','y'},  /* 2 */
-	{'C','X','c','x'},  /* 3 */
-	{'D','W','d','w'},  /* 4 */
-	{'E','V','e','v'},  /* 5 */
-	{'F','U','f','u'},  /* 6 */
-	{'G','T','g','t'},  /* 7 */
-	{'H','S','h','s'},  /* 8 */
-	{'I','R','i','r'},  /* 9 */
-	{'J','Q','j','q'}, /* 10 */
-	{'K','P','k','p'}, /* 11 */
-	{'L','O','l','o'}, /* 12 */
-	{'M','N','m','n'}, /* 13 */
-	{'1','1','1','1'}  /* 14 */
+    {'0','0','0','0'},  /* 0 */
+    {'A','Z','a','z'},  /* 1 */
+    {'B','Y','b','y'},  /* 2 */
+    {'C','X','c','x'},  /* 3 */
+    {'D','W','d','w'},  /* 4 */
+    {'E','V','e','v'},  /* 5 */
+    {'F','U','f','u'},  /* 6 */
+    {'G','T','g','t'},  /* 7 */
+    {'H','S','h','s'},  /* 8 */
+    {'I','R','i','r'},  /* 9 */
+    {'J','Q','j','q'}, /* 10 */
+    {'K','P','k','p'}, /* 11 */
+    {'L','O','l','o'}, /* 12 */
+    {'M','N','m','n'}, /* 13 */
+    {'1','1','1','1'}  /* 14 */
 };
 
 /*  JDATE  --  Convert internal date to Julian day.  */
@@ -86,17 +94,7 @@ char* strip(char* input)
 // callback function for rendering the background layer
 void background_update_callback(Layer *me, GContext *ctx)
 {
-    bool not_reversed = persist_read_int(REVERSED_KEY) == 0;
-    GColor COLOR_FOREGROUND;
-    if (not_reversed)
-    {
-        COLOR_FOREGROUND = GColorWhite;
-    }
-    else
-    {
-        COLOR_FOREGROUND = GColorBlack;
-    }
-    graphics_context_set_fill_color(ctx, COLOR_FOREGROUND);
+    graphics_context_set_fill_color(ctx, foregroundColor);
     graphics_fill_rect(ctx, GRect(2,8,140,68), 4, GCornersAll); /* Time Box */
     graphics_fill_rect(ctx, GRect(2,81,68,43), 4, GCornersAll); /* Day Box */
     graphics_fill_rect(ctx, GRect(74,81,68,43), 4, GCornersAll); /* Moon Box */
@@ -195,20 +193,10 @@ void handle_tick(struct tm *tick_time, TimeUnits units_changed)
 // utility function for initializing a text layer
 TextLayer* init_text(int x, int y, int width, int height, ResourceId font, GColor TextColor)
 {
-    bool not_reversed = persist_read_int(REVERSED_KEY) == 0;
-    GColor COLOR_BACKGROUND;
-    if (not_reversed)
-    {
-        COLOR_BACKGROUND = GColorBlack;
-    }
-    else
-    {
-        COLOR_BACKGROUND = GColorWhite;
-    }
     TextLayer* textlayer;
     textlayer = text_layer_create(GRect(x, y, width, height));
     text_layer_set_text_alignment(textlayer, GTextAlignmentCenter);
-    text_layer_set_text_color(textlayer, COLOR_BACKGROUND);
+    text_layer_set_text_color(textlayer, backgroundColor);
     text_layer_set_background_color(textlayer, GColorClear);
     text_layer_set_font(textlayer, fonts_load_custom_font(resource_get_handle(font)));
     return textlayer;
@@ -216,8 +204,12 @@ TextLayer* init_text(int x, int y, int width, int height, ResourceId font, GColo
 
 void handle_inbox(DictionaryIterator *it, void *context)
 {
-	Tuple* tup = dict_read_first(it);
-	persist_write_int(tup->key, tup->value->int32);
+    Tuple* tup = dict_read_first(it);
+    persist_write_int(tup->key, tup->value->int32);
+
+    bool not_reversed = persist_read_int(REVERSED_KEY) == 0;
+    backgroundColor = not_reversed ? GColorBlack : GColorWhite;
+    foregroundColor = not_reversed ? GColorWhite : GColorBlack;
 }
 
 // callback function for the app initialization
@@ -229,30 +221,31 @@ void handle_init()
     }
     bool not_reversed = persist_read_int(REVERSED_KEY) == 0;
 
-    GColor COLOR_BACKGROUND;
-    if (not_reversed)
+    if (!persist_exists(TIME_DISPLAY_KEY))
     {
-        COLOR_BACKGROUND = GColorBlack;
+        persist_write_int(TIME_DISPLAY_KEY, 0);
     }
-    else
-    {
-        COLOR_BACKGROUND = GColorWhite;
-    }
+
+    displayTime = persist_read_int(TIME_DISPLAY_KEY) == 0;
+
+    backgroundColor = not_reversed ? GColorBlack : GColorWhite;
+    foregroundColor = not_reversed ? GColorWhite : GColorBlack;
+
     window = window_create();
     window_stack_push(window, true /* Animated */);
-    window_set_background_color(window, COLOR_BACKGROUND);
+    window_set_background_color(window, backgroundColor);
 
     background = layer_create(layer_get_bounds(window_get_root_layer(window)));
     layer_set_update_proc(background, &background_update_callback);
     layer_add_child(window_get_root_layer(window), background);
 
-    time_text = init_text(2, 8 + 4, 140, 68 - 4, RESOURCE_ID_FONT_WW_DIGITAL_SUBSET_52, COLOR_BACKGROUND);
-    day_text = init_text(2, 81 + 2, 68, 43 - 2, RESOURCE_ID_FONT_WW_DIGITAL_DOW_SUBSET_33, COLOR_BACKGROUND);
-    moon_text = init_text(74, 85 + 2, 68, 43 - 2, RESOURCE_ID_FONT_MOONPHASE_33, COLOR_BACKGROUND);
-    date_text = init_text(2, 128 + 2, 32, 32 - 2, RESOURCE_ID_FONT_WW_DIGITAL_DATE_SUBSET_22,COLOR_BACKGROUND);
-    month_text = init_text(38, 128 + 2, 68, 32 - 2, RESOURCE_ID_FONT_WW_DIGITAL_DATE_SUBSET_22,COLOR_BACKGROUND);
-    year_text= init_text(110, 128 + 2, 32, 32 - 2, RESOURCE_ID_FONT_WW_DIGITAL_DATE_SUBSET_22,COLOR_BACKGROUND);
-    ampm_text = init_text(4, 63, 16, 12, RESOURCE_ID_FONT_WW_DIGITAL_SUBSET_10,COLOR_BACKGROUND);
+    time_text = init_text(2, 8 + 4, 140, 68 - 4, RESOURCE_ID_FONT_WW_DIGITAL_SUBSET_52, backgroundColor);
+    day_text = init_text(2, 81 + 2, 68, 43 - 2, RESOURCE_ID_FONT_WW_DIGITAL_DOW_SUBSET_33, backgroundColor);
+    moon_text = init_text(74, 85 + 2, 68, 43 - 2, RESOURCE_ID_FONT_MOONPHASE_33, backgroundColor);
+    date_text = init_text(2, 128 + 2, 32, 32 - 2, RESOURCE_ID_FONT_WW_DIGITAL_DATE_SUBSET_22, backgroundColor);
+    month_text = init_text(38, 128 + 2, 68, 32 - 2, RESOURCE_ID_FONT_WW_DIGITAL_DATE_SUBSET_22, backgroundColor);
+    year_text= init_text(110, 128 + 2, 32, 32 - 2, RESOURCE_ID_FONT_WW_DIGITAL_DATE_SUBSET_22, backgroundColor);
+    ampm_text = init_text(4, 63, 16, 12, RESOURCE_ID_FONT_WW_DIGITAL_SUBSET_10, backgroundColor);
 
     layer_add_child(background, text_layer_get_layer(time_text));
     layer_add_child(background, text_layer_get_layer(day_text));
@@ -263,14 +256,23 @@ void handle_init()
     layer_add_child(background, text_layer_get_layer(ampm_text));
 
     tick_timer_service_subscribe(MINUTE_UNIT, handle_tick);
-	app_message_open(APP_MESSAGE_INBOX_SIZE_MINIMUM, APP_MESSAGE_OUTBOX_SIZE_MINIMUM);
-	app_message_register_inbox_received(handle_inbox);
+    app_message_open(APP_MESSAGE_INBOX_SIZE_MINIMUM, APP_MESSAGE_OUTBOX_SIZE_MINIMUM);
+    app_message_register_inbox_received(handle_inbox);
 }
 
 void handle_deinit(void)
 {
+    text_layer_destroy(time_text);
+    text_layer_destroy(day_text);
+    text_layer_destroy(moon_text);
+    text_layer_destroy(date_text);
+    text_layer_destroy(month_text);
+    text_layer_destroy(year_text);
+    text_layer_destroy(ampm_text);
+    layer_destroy(background);
+    window_destroy(window);
     tick_timer_service_unsubscribe();
-	app_message_deregister_callbacks();
+    app_message_deregister_callbacks();
 }
 
 
