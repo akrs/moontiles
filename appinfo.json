@@ -1,55 +1,61 @@
 {
-    "versionLabel": "2",
-    "uuid": "689dea96-6903-4df8-a2e8-48a22cb8bc52",
     "appKeys": {},
-    "longName": "Moontiles",
-    "versionCode": 1,
     "capabilities": [
         ""
     ],
-    "shortName": "Moontiles",
     "companyName": "akrs_",
-    "watchapp": {
-        "watchface": true
-    },
+    "longName": "Moontiles",
+    "projectType": "native",
     "resources": {
         "media": [
             {
-                "characterRegex": "[0-1A-Z]",
-                "type": "font",
-                "name": "FONT_MOONPHASE_33",
-                "file": "fonts/moon_phases.ttf"
-            },
-            {
-                "characterRegex": "[0-9ADFJMNOSabceglnoprtuvy]",
-                "type": "font",
-                "name": "FONT_WW_DIGITAL_DATE_SUBSET_22",
-                "file": "fonts/wwDigital.ttf"
-            },
-            {
-                "characterRegex": "[FMSTWadehinortu]",
-                "type": "font",
-                "name": "FONT_WW_DIGITAL_DOW_SUBSET_33",
-                "file": "fonts/wwDigital.ttf"
-            },
-            {
-                "characterRegex": "[0-9:]",
-                "type": "font",
-                "name": "FONT_WW_DIGITAL_SUBSET_52",
-                "file": "fonts/wwDigital.ttf"
+                "file": "images/menu_icon_moontiles.png",
+                "menuIcon": true,
+                "name": "IMAGE_MENU_ICON",
+                "type": "png"
             },
             {
                 "characterRegex": "[APM]",
-                "type": "font",
+                "file": "fonts/wwDigital.ttf",
                 "name": "FONT_WW_DIGITAL_SUBSET_10",
-                "file": "fonts/wwDigital.ttf"
+                "type": "font"
             },
             {
-                "menuIcon": true,
-                "type": "png",
-                "name": "IMAGE_MENU_ICON",
-                "file": "images/menu_icon_moontiles.png"
+                "characterRegex": "[0-9:]",
+                "file": "fonts/wwDigital.ttf",
+                "name": "FONT_WW_DIGITAL_SUBSET_52",
+                "type": "font"
+            },
+            {
+                "characterRegex": "[FMSTWadehinortu]",
+                "file": "fonts/wwDigital.ttf",
+                "name": "FONT_WW_DIGITAL_DOW_SUBSET_33",
+                "type": "font"
+            },
+            {
+                "characterRegex": "[0-9ADFJMNOSabceglnoprtuvy]",
+                "file": "fonts/wwDigital.ttf",
+                "name": "FONT_WW_DIGITAL_DATE_SUBSET_22",
+                "type": "font"
+            },
+            {
+                "characterRegex": "[0-1A-Z]",
+                "file": "fonts/moon_phases.ttf",
+                "name": "FONT_MOONPHASE_33",
+                "type": "font"
             }
         ]
+    },
+    "sdkVersion": "3",
+    "shortName": "Moontiles",
+    "targetPlatforms": [
+        "aplite",
+        "basalt"
+    ],
+    "uuid": "689dea96-6903-4df8-a2e8-48a22cb8bc52",
+    "versionCode": 1,
+    "versionLabel": "2",
+    "watchapp": {
+        "watchface": true
     }
 }
