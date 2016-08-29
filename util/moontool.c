@@ -1,6 +1,6 @@
 #include "moonlib.h"
 
-#define YEARS_TO_RENDER 5
+#define YEARS_TO_RENDER 10
 #define MOONPHASE_ARRAY_SIZE 365*YEARS_TO_RENDER
 
 /*  Main program  */
