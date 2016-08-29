@@ -7,6 +7,7 @@
    Version History:	1.0 Initial Version
    					1.1 Combined hour and minute tiles and increased typeface size, support reverse of black and white
 					2.0 Updated to Pebble SDK v2
+					3.0 Updated to Pebble SDK v3
 
    Purpose:	  		Main implementation source
 
@@ -16,7 +17,7 @@
 */
 
 #include <pebble.h>
-#include <moonphase.h>
+#include "moonphase.h"
 #include <stdint.h>
 
 /* #define REVERSE 1 */
@@ -91,8 +92,7 @@ char* strip(char* input)
 }
 
 // callback function for rendering the background layer
-void background_update_callback(Layer *me, GContext *ctx)
-{
+void background_update_callback(Layer *me, GContext *ctx) {
     graphics_context_set_fill_color(ctx, COLOR_FOREGROUND);
     graphics_fill_rect(ctx, GRect(2,8,140,68), 4, GCornersAll); /* Time Box */
     graphics_fill_rect(ctx, GRect(2,81,68,43), 4, GCornersAll); /* Day Box */
@@ -104,8 +104,7 @@ void background_update_callback(Layer *me, GContext *ctx)
 
 // callback function for minute tick events that update the time and date display
 void handle_tick(struct tm *tick_time, TimeUnits units_changed)
-{
-	long arypos;
+{	long arypos;
 	static char time[]   = "     ";
 	static char day[]    = "   ";
 	static char moon[]   = " ";
@@ -189,27 +188,20 @@ void handle_tick(struct tm *tick_time, TimeUnits units_changed)
 }
 
 // utility function for initializing a text layer
-TextLayer* init_text(int x, int y, int width, int height, ResourceId font, GColor TextColor)
-{
-	TextLayer* textlayer;
+TextLayer* init_text(int x, int y, int width, int height, uint32_t font, GColor TextColor)
+{	TextLayer* textlayer;
 	textlayer = text_layer_create(GRect(x, y, width, height));
 	text_layer_set_text_alignment(textlayer, GTextAlignmentCenter);
 	text_layer_set_text_color(textlayer, COLOR_BACKGROUND);
 	text_layer_set_background_color(textlayer, GColorClear);
-	text_layer_set_font(textlayer, fonts_load_custom_font(resource_get_handle(font)));
-	return textlayer;
+	text_layer_set_font(textlayer, fonts_load_custom_font(resource_get_handle(font)));	return textlayer;
 }
 
-// callback function for the app initialization
-void handle_init()
-{
-	window = window_create();
-	window_stack_push(window, true /* Animated */);
-	window_set_background_color(window, COLOR_BACKGROUND);
-
-	background = layer_create(layer_get_bounds(window_get_root_layer(window)));
-	layer_set_update_proc(background, &background_update_callback);
+static void main_window_load(Window *window) {
+	background = layer_create(layer_get_bounds(window_get_root_layer(window)));	layer_set_update_proc(background, &background_update_callback);
 	layer_add_child(window_get_root_layer(window), background);
+
+	window_set_background_color(window, COLOR_BACKGROUND);
 
 	time_text = init_text(2, 8 + 4, 140, 68 - 4, RESOURCE_ID_FONT_WW_DIGITAL_SUBSET_52, COLOR_BACKGROUND);
 	day_text = init_text(2, 81 + 2, 68, 43 - 2, RESOURCE_ID_FONT_WW_DIGITAL_DOW_SUBSET_33, COLOR_BACKGROUND);
@@ -227,12 +219,37 @@ void handle_init()
 	layer_add_child(background, text_layer_get_layer(year_text));
 	layer_add_child(background, text_layer_get_layer(ampm_text));
 
+	time_t t;
+	time(&t);
+	handle_tick(localtime(&t), MINUTE_UNIT | DAY_UNIT);
+}
+
+static void main_window_unload(Window *window) {	text_layer_destroy(time_text);
+	text_layer_destroy(day_text);
+	text_layer_destroy(moon_text);
+	text_layer_destroy(date_text);
+	text_layer_destroy(month_text);
+	text_layer_destroy(year_text);
+	text_layer_destroy(ampm_text);
+}
+
+
+// callback function for the app initialization
+void handle_init()
+{
+	window = window_create();
+	window_set_window_handlers(window, (WindowHandlers) {
+		.load = main_window_load,
+		.unload = main_window_unload
+	});
+	window_stack_push(window, true /* Animated */);
 	tick_timer_service_subscribe(MINUTE_UNIT, handle_tick);
 }
 
 void handle_deinit(void)
 {
 	tick_timer_service_unsubscribe();
+	window_destroy(window);
 }
 
 // main entry point of this Pebble watchface

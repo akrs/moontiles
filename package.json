@@ -1,0 +1,70 @@
+{
+  "version": "3.0",
+  "author": "akrs",
+  "private": true,
+  "dependencies": {},
+  "keywords": [
+    "pebble-app"
+  ],
+  "pebble": {
+    "sdkVersion": "3",
+    "resources": {
+      "media": [
+        {
+          "type": "font",
+          "characterRegex": "[0-1A-Z]",
+          "name": "FONT_MOONPHASE_33",
+          "file": "fonts/moon_phases.ttf"
+        },
+        {
+          "type": "font",
+          "characterRegex": "[0-9ADFJMNOSabceglnoprtuvy]",
+          "name": "FONT_WW_DIGITAL_DATE_SUBSET_22",
+          "file": "fonts/wwDigital.ttf"
+        },
+        {
+          "type": "font",
+          "characterRegex": "[FMSTWadehinortu]",
+          "name": "FONT_WW_DIGITAL_DOW_SUBSET_33",
+          "file": "fonts/wwDigital.ttf"
+        },
+        {
+          "type": "font",
+          "characterRegex": "[0-9:]",
+          "name": "FONT_WW_DIGITAL_SUBSET_52",
+          "file": "fonts/wwDigital.ttf"
+        },
+        {
+          "type": "font",
+          "characterRegex": "[APM]",
+          "name": "FONT_WW_DIGITAL_SUBSET_10",
+          "file": "fonts/wwDigital.ttf"
+        },
+        {
+          "menuIcon": true,
+          "type": "png",
+          "name": "IMAGE_MENU_ICON",
+          "file": "images/menu_icon_moontiles.png"
+        }
+      ]
+    },
+    "projectType": "native",
+    "uuid": "689dea96-6903-4df8-a2e8-48a22cb8bc52",
+    "messageKeys": {},
+    "enableMultiJS": false,
+    "displayName": "Moontiles",
+    "watchapp": {
+      "onlyShownOnCommunication": false,
+      "hiddenApp": false,
+      "watchface": true
+    },
+    "targetPlatforms": [
+      "aplite",
+      "basalt"
+    ],
+    "capabilities": [
+      ""
+    ]
+  },
+  "name": "Moontiles"
+}
